@@ -31,6 +31,9 @@ lerna-debug.log*
 .env*.local
 .env
 
+# connection config (contains sensitive data)
+connection-config.json
+
 # vercel
 .vercel
 

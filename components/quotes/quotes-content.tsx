@@ -1,30 +1,62 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, RefreshCw, TrendingUp, TrendingDown, Eye, Star } from "lucide-react"
+import { Search, RefreshCw, TrendingUp, TrendingDown, Eye, Star, Loader2 } from "lucide-react"
+import { api, Quote } from "@/lib/services/api"
 
 export function QuotesContent() {
   const [selectedSymbol, setSelectedSymbol] = useState("AAPL")
+  const [quote, setQuote] = useState<Quote | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const quote = {
-    symbol: "AAPL",
-    name: "Apple Inc.",
-    price: 185.23,
-    change: 2.34,
-    changePercent: 1.28,
-    volume: 45234567,
-    avgVolume: 52341234,
-    marketCap: "2.89T",
-    dayRange: "182.45 - 186.78",
-    yearRange: "164.08 - 199.62",
-    pe: 28.5,
-    eps: 6.5,
-    dividend: 0.96,
-    yield: 0.52,
+  const fetchQuote = async (symbol: string) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await api.getQuote(symbol)
+      setQuote(response.quote)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch quote')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchQuote(selectedSymbol)
+  }, [selectedSymbol])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading quote...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Error: {error}</p>
+          <Button onClick={() => fetchQuote(selectedSymbol)}>Retry</Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!quote) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p>No quote data available</p>
+      </div>
+    )
   }
 
   return (
@@ -41,8 +73,8 @@ export function QuotesContent() {
               className="w-48 pl-9"
             />
           </div>
-          <Button size="sm" variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button size="sm" variant="outline" onClick={() => fetchQuote(selectedSymbol)} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>

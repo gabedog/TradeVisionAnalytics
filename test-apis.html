@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Trading Vision Analytics API Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPIs() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test Python API
+                results.innerHTML += '<h2>Testing Python API (Port 8001)</h2>';
+                
+                const qqqResponse = await fetch('http://127.0.0.1:8001/api/etf/QQQ/holdings/symbols');
+                const qqqData = await qqqResponse.json();
+                results.innerHTML += `<p>✅ QQQ Symbols: ${qqqData.symbols.length} symbols found</p>`;
+                results.innerHTML += `<p>First 5 symbols: ${qqqData.symbols.slice(0, 5).join(', ')}</p>`;
+                
+                const quotesResponse = await fetch('http://127.0.0.1:8001/api/quotes/AAPL');
+                const quotesData = await quotesResponse.json();
+                results.innerHTML += `<p>✅ AAPL Quote: $${quotesData.quote.price}</p>`;
+                
+            } catch (error) {
+                results.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        testAPIs();
+    </script>
+</body>
+</html>
