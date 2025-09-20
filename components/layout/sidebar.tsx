@@ -15,6 +15,8 @@ import {
   PieChart,
   Users,
   Activity,
+  BarChart3,
+  FileText,
 } from "lucide-react"
 
 interface SidebarProps {
@@ -41,7 +43,17 @@ export function Sidebar({ mode }: SidebarProps) {
     { name: "Market Breadth", href: "/market-breadth", icon: Activity, available: mode !== "BASIC" },
     { name: "Charts", href: "/charts", icon: LineChart, available: true },
     { name: "Backtesting", href: "/backtesting", icon: Target, available: mode === "ULTIMATE" },
-    { name: "Admin", href: "/admin", icon: Settings, available: true },
+    {
+      name: "Admin",
+      icon: Settings,
+      available: true,
+      children: [
+        { name: "Overview", href: "/admin", icon: Settings },
+        { name: "Symbols", href: "/admin/symbols", icon: TrendingUp },
+        { name: "ETFs", href: "/admin/etfs", icon: BarChart3 },
+        { name: "Logging", href: "/admin/logging", icon: FileText },
+      ],
+    },
   ]
 
   return (

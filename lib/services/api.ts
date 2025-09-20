@@ -1,6 +1,8 @@
 // API service for Trading Vision Analytics
-const PYTHON_API_BASE = 'http://127.0.0.1:8001';
-const CSHARP_API_BASE = 'http://localhost:5000';
+import { API_URLS } from '@/lib/config/api-config';
+
+const PYTHON_API_BASE = API_URLS.pythonApi;
+const CSHARP_API_BASE = API_URLS.csharpApi;
 
 // Types
 export interface Quote {

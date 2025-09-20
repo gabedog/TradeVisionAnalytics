@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Page</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+        .response { margin-top: 10px; border: 1px solid #ccc; padding: 10px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Trading Vision Analytics API Test</h1>
+
+    <div class="section">
+        <h2>Symbol Management API (C#)</h2>
+        <button onclick="testCSharpApi('/api/symbols')">Get All Symbols</button>
+        <button onclick="testCSharpApi('/api/symbols/1')">Get Symbol by ID</button>
+        <button onclick="testCSharpApi('/api/scheduler/status')">Get Scheduler Status</button>
+        <button onclick="testCSharpApi('/api/logging/test')">Test Logging</button>
+        <div id="csharpApiResponse" class="response"></div>
+    </div>
+
+    <div class="section">
+        <h2>ETF Management API (C#)</h2>
+        <button onclick="testCSharpApi('/api/etfs')">Get All ETFs</button>
+        <button onclick="testCSharpApi('/api/etfs/3/holdings')">Get QQQ Holdings</button>
+        <div id="etfApiResponse" class="response"></div>
+    </div>
+
+    <div class="section">
+        <h2>Quotes API (C#)</h2>
+        <button onclick="testCSharpApi('/api/quotes')">Get All Quotes</button>
+        <button onclick="testCSharpApi('/api/quotes/AAPL')">Get AAPL Quote</button>
+        <button onclick="testCSharpApi('/api/quotes/AAPL/daily?days=5')">Get AAPL Daily Quotes</button>
+        <div id="quotesApiResponse" class="response"></div>
+    </div>
+
+    <script>
+        async function testCSharpApi(endpoint) {
+            const url = `http://localhost:5000${endpoint}`;
+            const responseDiv = document.getElementById('csharpApiResponse');
+            responseDiv.innerHTML = `Loading ${url}...`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                responseDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                responseDiv.innerHTML = `<pre style="color: red;">Error: ${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>
+

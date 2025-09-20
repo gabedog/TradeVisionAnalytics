@@ -16,7 +16,7 @@ namespace TradingVisionAnalytics.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAvailableETFs()
+        public IActionResult GetAvailableETFs()
         {
             _logger.LogInformation("Available ETFs endpoint accessed");
             
@@ -52,7 +52,7 @@ namespace TradingVisionAnalytics.API.Controllers
         }
 
         [HttpGet("{symbol}/holdings")]
-        public async Task<IActionResult> GetETFHoldings(string symbol)
+        public IActionResult GetETFHoldings(string symbol)
         {
             _logger.LogInformation("ETF holdings endpoint accessed for symbol: {Symbol}", symbol);
             
@@ -75,7 +75,7 @@ namespace TradingVisionAnalytics.API.Controllers
         }
 
         [HttpGet("{symbol}/holdings/symbols")]
-        public async Task<IActionResult> GetETFSymbols(string symbol)
+        public IActionResult GetETFSymbols(string symbol)
         {
             _logger.LogInformation("ETF symbols endpoint accessed for symbol: {Symbol}", symbol);
             
@@ -88,7 +88,7 @@ namespace TradingVisionAnalytics.API.Controllers
                     return NotFound($"ETF holdings not found for symbol: {symbol}");
                 }
 
-                var symbols = etfHoldings.Holdings.Select(h => h.Symbol).ToArray();
+                var symbols = etfHoldings.Holdings.Select(h => ((dynamic)h).Symbol).ToArray();
 
                 return Ok(new
                 {

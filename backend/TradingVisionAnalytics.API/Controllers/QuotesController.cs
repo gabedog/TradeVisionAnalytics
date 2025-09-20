@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using TradingVisionAnalytics.API.Services;
 
 namespace TradingVisionAnalytics.API.Controllers
 {
@@ -9,15 +10,17 @@ namespace TradingVisionAnalytics.API.Controllers
     {
         private readonly ILogger<QuotesController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly ILoggingService _loggingService;
 
-        public QuotesController(ILogger<QuotesController> logger, IConfiguration configuration)
+        public QuotesController(ILogger<QuotesController> logger, IConfiguration configuration, ILoggingService loggingService)
         {
             _logger = logger;
             _configuration = configuration;
+            _loggingService = loggingService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetQuotes()
+        public IActionResult GetQuotes()
         {
             _logger.LogInformation("Quotes endpoint accessed");
             
@@ -71,9 +74,10 @@ namespace TradingVisionAnalytics.API.Controllers
         }
 
         [HttpGet("{symbol}")]
-        public async Task<IActionResult> GetQuote(string symbol)
+        public IActionResult GetQuote(string symbol)
         {
             _logger.LogInformation("Quote endpoint accessed for symbol: {Symbol}", symbol);
+            _loggingService.LogInfo($"Quote request received for symbol: {symbol}", symbol);
             
             try
             {
@@ -119,20 +123,23 @@ namespace TradingVisionAnalytics.API.Controllers
                 
                 if (quote == null)
                 {
+                    _loggingService.LogWarning($"Quote not found for symbol: {symbol}", symbol);
                     return NotFound($"Quote not found for symbol: {symbol}");
                 }
 
+                _loggingService.LogInfo($"Quote successfully retrieved for symbol: {symbol}", symbol);
                 return Ok(new { quote });
             }
             catch (Exception ex)
             {
+                _loggingService.LogException(ex, "GetQuote endpoint", symbol);
                 _logger.LogError(ex, "Error in GetQuote endpoint for {Symbol}", symbol);
                 return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpGet("{symbol}/daily")]
-        public async Task<IActionResult> GetDailyQuotes(string symbol, int days = 30)
+        public IActionResult GetDailyQuotes(string symbol, int days = 30)
         {
             _logger.LogInformation("Daily quotes endpoint accessed for symbol: {Symbol}, days: {Days}", symbol, days);
             
@@ -168,7 +175,7 @@ namespace TradingVisionAnalytics.API.Controllers
         }
 
         [HttpGet("{symbol}/daily/range")]
-        public async Task<IActionResult> GetDailyQuotesRange(string symbol, string startDate, string endDate)
+        public IActionResult GetDailyQuotesRange(string symbol, string startDate, string endDate)
         {
             _logger.LogInformation("Daily quotes range endpoint accessed for symbol: {Symbol}, from {StartDate} to {EndDate}", 
                 symbol, startDate, endDate);
@@ -184,7 +191,7 @@ namespace TradingVisionAnalytics.API.Controllers
 
                 // Filter by date range
                 var filteredQuotes = dailyQuotes
-                    .Where(q => q.Date >= startDate && q.Date <= endDate)
+                    .Where(q => ((dynamic)q).Date >= startDate && ((dynamic)q).Date <= endDate)
                     .ToArray();
 
                 return Ok(new
